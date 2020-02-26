@@ -3,6 +3,18 @@ title: "index"
 author: "Sabrina Moreta"
 date: "2/26/2020"
 output: html_document
+bibliography: data/references.bib
 ---
 
-[this is my lab5](lab5_sabrinamoreta.html)
+[this is my lab2](lab2_sabrinamoreta.html)
+
+[this is my lab3](lab3_sabrinamoreta.html)
+
+[this is my lab4](lab4_sabrinamoreta.html)
+
+[this is my lab5](lab5_sabrinamoreta.html) 
+
+[@RCoreTeam]
+
+### REFERENCE
+
