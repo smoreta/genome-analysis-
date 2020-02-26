@@ -1,0 +1,61 @@
+---
+title: "lab 3"
+author: "Sabrina Moreta"
+date: "2/5/2020"
+output: html_document
+---
+
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+SNPs<- read.table("23andMe_complete.txt", header = TRUE, sep = "\t")
+str(SNPs)
+```
+
+```{r}
+#exercise 1
+ggplot(SNPs, aes(x = chromosome)) +
+  geom_bar()
+```
+
+```{r}
+#exercise 2
+#already in order
+p <- ggplot(SNPs, aes(x = chromosome))
+p <- p + geom_bar()
+p
+
+```
+
+```{r}
+#exercise 3
+p <- ggplot(SNPs, aes(x = chromosome, fill = genotype))
+p <- p + geom_bar()
+p
+
+```
+
+```{r}
+#exercise 4
+ggplot(data = SNPs) +
+  geom_bar(mapping = aes(x = chromosome, fill = genotype), position = "fill")
+
+```
+
+```{r}
+#exersise 5 
+ggplot(data = SNPs) +
+  geom_bar(mapping = aes(x = chromosome, fill = genotype), position = "dodge")
+
+```
+
+```{r}
+#exercise 6 
+ggplot(data = SNPs) +
+  geom_bar(mapping = aes(x = chromosome, fill = genotype), position = "dodge") +
+  facet_wrap(~genotype)
+
+```

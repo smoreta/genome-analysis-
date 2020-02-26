@@ -1,0 +1,79 @@
+---
+title: "lab4"
+author: "Sabrina Moreta"
+date: "2/12/2020"
+output: html_document
+---
+
+```{r}
+SNPs<- read.table("23andMe_complete.txt", header = TRUE, sep = "\t")
+```
+
+```{r}
+library(plotly)
+```
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+library(DT)
+
+```
+
+```{r}
+library(ggplot2)
+```
+
+```{r}
+#exercise 1
+ggplot(data = SNPs) +
+  geom_bar( mapping = aes(x = chromosome), fill = "blue") +
+  ggtitle("Total SNPs for each chromosome") +
+  ylab("Total number of SNPs") +
+  xlab("Chromosome") 
+```
+
+```{r}
+#exercise 2
+mycolor<-c("AA"="red","AC"="red","AG"="red","AT"="red","CC"="red","CG"="red","CT"="red","DD"="blue","DI"="blue","D"="blue","I"="blue","II"="blue","GG"="red","GT"="red","TT"="red","A"="yellow","C"="yellow","G"="yellow","T"="yellow","--" = "magenta")
+p <- ggplot(SNPs, aes(x = chromosome, fill = genotype)) 
+p <- p + geom_bar() +
+  ggtitle("Total SNPs for each chromosome") +
+  ylab("Genotype Count") +
+  xlab("Chromosome Numbers") +
+  scale_fill_manual(values=c(mycolor))
+p 
+
+```
+
+```{r}
+#exercise 3
+```
+![Total SNPs for each chromosome](Rplot.png)
+
+```{r}
+#exercise 4
+```
+![Total SNPs for each chromosome](Rplot01.png)
+
+```{r}
+#exercise 5
+ggplotly(
+  ggplot(data = SNPs) +
+    geom_bar(mapping = aes(x = chromosome, fill = genotype)) +
+    facet_wrap(~ genotype, ncol = 3, nrow = 15, scales = "fixed") +
+    theme(axis.text.x = element_text( size = 3),) +
+    theme(axis.text = element_text( size = 5),) +
+    ggtitle("Total SNPs for each chromosome") +
+    ylab("Genotype Count") +
+    xlab("Chromosome Numbers") 
+)
+```
+
+```{r}
+#exercise 6
+R <- subset(SNPs, chromosome == "Y" )
+datatable(R) 
+```

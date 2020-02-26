@@ -1,0 +1,90 @@
+---
+title: "lab 2"
+author: "Sabrina Moreta"
+date: "2/10/2020"
+output: html_document
+---
+```{r paged.print=TRUE}
+SNP_table <- read.table("23andMe_complete.txt", header = TRUE, sep = "\t")
+SNP_table
+```
+
+```{r}
+###exercise 1 
+x <- c(1,3,6,9,12)
+y <- c(1,0,1,0,1)
+x + y 
+x - y
+x * y 
+x / y 
+```
+
+```{r}
+###exercise 2
+x <- c(0,1,2,3)
+y <- c("aa","bb","cc","dd")
+e <- c("aa",1,"bb",2)
+str(x)
+str(y)
+str(e)
+```
+
+```{r}
+###exercise 3
+genotype1 <- c("AA","AA","AG","GG","GG")
+genotype2 <- c("AA","AA","GG","GG","GG")
+A <- cbind(genotype1,genotype2)
+A
+
+genotype1 <- c("AA","AA","AG","GG","GG")
+genotype2 <- c("AA","AA","GG","GG","GG")
+B <- rbind(genotype1,genotype2)
+B
+
+t(A)
+
+genotype1 <- c("AA","AA","AG","GG","GG")
+genotype1
+
+genotype2 <- c("AA","AA","GG","GG","GG")
+genotype2
+
+factor(genotype1)
+factor(genotype2)
+
+table(genotype1)
+table(genotype2)
+```
+
+```{r}
+###exercise 4
+treatment1 <- c(0,1,2,3,4)
+treatment2 <- c(0,2,4,6,8)
+treatment3 <- c(0,3,6,9,12)
+time <- c(0, 2, 4, 6, 8)
+exersise4 <- data.frame(treatment1, treatment2, treatment3, time, row.names = time)
+exersise4
+
+plot(exersise4$treatment3,exersise4$time)
+
+```
+
+```{r}
+###exersise 5 
+#factor 
+#there is more than one chromosome type
+```
+
+```{r}
+###exersise 6
+table(SNP_table$genotype)
+
+```
+
+```{r}
+###exersise 7 
+SNP_table_A <- subset(SNP_table, genotype == 'A')
+SNP_table_A
+#Chromosome x,y, & mt
+
+```
