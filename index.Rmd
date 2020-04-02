@@ -14,7 +14,24 @@ bibliography: data/references.bib
 
 [this is my lab5](lab5_sabrinamoreta.html) 
 
+[this is my lab9](lab9_sabrinamoreta.html)
+
 [@RCoreTeam]
 
-### REFERENCE
+[@JohnHopkins]
+
+# REFERENCE
+
+
+
+
+
+
+
+
+
+
+
+
+
 
