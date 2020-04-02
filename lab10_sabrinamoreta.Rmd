@@ -1,0 +1,323 @@
+---
+title: "Lab 10: COVID-19 Data Report "
+author: "Sabrina Moreta"
+date: "4/1/2020"
+output: html_document
+---
+
+```{r setup, echo=FALSE} 
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = FALSE) 
+```
+
+## Introduction
+
+Coronavirus disease (COVID-19) has created an immense mark on the world right now. It is a respiratory illness that can easily spread from person to person, and it's killing thousands of people across the globe. It made its debut in Wuhan, China and quickly spread to other countries. If a person has COVID-19, they can show symptoms such as fever, cough, and shortness of breath. As of right now, there is no cure nor vaccine against it. It has the cities on lockdown and people in fear of being outside their homes. Its rate continues to increase in countries like the US and the Dominican republic. This report shows daily reported data collected from John Hopkins and demonstrates from how fast the world is being impacted, to the number of cases in specific states. 
+
+## Methods
+
+This data was taken from John Hopkins. It was collected from their daily reports section. It contains information about the number of confirmed cases of COVID-19, cases recovered, and information on COVID-19 based on location. This data was then used to create graphs that concetrate on certain areas of the information given for the date of March 31st, 2020.
+
+## Data 
+
+
+* Graph 1
+
+Here we are shown a world map that gives us a big picture look at the amount of cases around the world. This graph is based off the counties/regions in the countries and is mapped out by coordinates. As of March 31st, 2020 the Unites States is leading with the most confirmed cases of COVID-19. Following the US are countires like Italy and Spain.
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+library(maps)
+```
+
+```{r}
+library(mapdata)
+```
+
+```{r}
+library(lubridate)
+```
+
+```{r}
+library(viridis)
+```
+
+```{r}
+library(wesanderson)
+```
+
+```{r}
+library(ggplot2)
+```
+
+```{r}
+library(gganimate)
+```
+
+```{r}
+library(transformr)
+```
+
+```{r}
+theme_set(theme_bw())
+```
+
+```{r}
+#as of 30-31-20
+daily_report <- read_csv(url("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/03-31-2020.csv")) %>% 
+  rename(Long = "Long_") 
+    
+ggplot(daily_report, aes(x = Long, y = Lat, size = Confirmed/1000)) +
+    borders("world", colour = NA, fill = "grey90") +
+    theme_bw() +
+    geom_point(shape = 21, color='orange', fill='orange', alpha = 0.5) +
+    labs(title = 'World Confirmed COVID-19 Cases',x = '', y = '',
+        size="Cases (x1000))") +
+    theme(legend.position = "right") +
+    coord_fixed(ratio=1.3)
+
+#by county, diff counties with conrfimed cases
+```
+
+
+* Graph 2
+
+This graph depcits some of the larger countries that still have fast rising cases of Coronavirus. Once again, the US is leading with the most rapid increase. With time, theres hope all countries will soon hit a peak and graphs will begin to level off. Thus, rates of confirmed cases can only decrease and eventually come to a complete halt.
+```{r}
+time_series_confirmed_long <- read_csv(url("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv")) %>%
+  rename(Province_State = "Province/State", Country_Region = "Country/Region")  %>% 
+               pivot_longer(-c(Province_State, Country_Region, Lat, Long),
+                            names_to = "Date", values_to = "Confirmed") 
+
+# Let's get the times series data for deaths
+
+time_series_deaths_long <- read_csv(url("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv")) %>%
+  rename(Province_State = "Province/State", Country_Region = "Country/Region")  %>% 
+  pivot_longer(-c(Province_State, Country_Region, Lat, Long),
+               names_to = "Date", values_to = "Deaths")
+
+time_series_recovered_long <- read_csv(url("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv")) %>%
+  rename(Province_State = "Province/State", Country_Region = "Country/Region") %>% 
+  pivot_longer(-c(Province_State, Country_Region, Lat, Long),
+               names_to = "Date", values_to = "Recovered")
+
+# Create Keys 
+
+time_series_confirmed_long <- time_series_confirmed_long %>% 
+  unite(Key, Province_State, Country_Region, Date, sep = ".", remove = FALSE)
+
+time_series_deaths_long <- time_series_deaths_long %>% 
+  unite(Key, Province_State, Country_Region, Date, sep = ".") %>% 
+  select(Key, Deaths)
+
+time_series_recovered_long <- time_series_recovered_long %>% 
+  unite(Key, Province_State, Country_Region, Date, sep = ".") %>% 
+  select(Key, Recovered)
+
+# Join tables
+time_series_long_joined <- full_join(time_series_confirmed_long,
+              time_series_deaths_long, by = c("Key"))
+
+time_series_long_joined <- full_join(time_series_long_joined,
+              time_series_recovered_long, by = c("Key")) %>% 
+    select(-Key)
+
+# Reformat the data
+time_series_long_joined$Date <- mdy(time_series_long_joined$Date)
+
+# Create Report table with counts
+time_series_long_joined_counts <- time_series_long_joined %>% 
+  pivot_longer(-c(Province_State, Country_Region, Lat, Long, Date),
+               names_to = "Report_Type", values_to = "Counts")
+
+```
+
+```{r}
+data_time <- time_series_long_joined %>% 
+    group_by(Country_Region,Date) %>% 
+    summarise_at(c("Confirmed", "Deaths", "Recovered"), sum) %>% 
+    filter (Country_Region %in% c("Spain","Italy","Iran","US")) 
+
+p <-ggplot(data_time, aes(x = Date,  y = Confirmed, color = Country_Region)) + 
+    geom_point() +
+    geom_line() +
+    ggtitle("Confirmed COVID-19 Cases") +
+    geom_point(aes(group = seq_along(Date))) +
+    transition_reveal(Date) 
+animate(p,renderer = gifski_renderer(), end_pause = 15)
+```
+
+
+* Graph 3
+
+In better news, here we have the numbers for recovered cases in the countries with increasing confirmed cases, along with Australia and China. The rate of recovery is high and incerasing, meaning less people are dying. China has already began to level off as it's the country where the COVID-19 hit first. Australia has a less continuous rate as it's number of people infected is much lower than that of the US, Italy, Iran, or Spain.
+```{r}
+time_series_recovered <- read_csv(url("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv")) %>%
+  rename(Province.State = "Province/State", Country.Region = "Country/Region")
+```
+
+```{r}
+time_series_recovered_long <- time_series_recovered %>% 
+  pivot_longer(-c(Province.State, Country.Region, Lat, Long),
+               names_to = "Date", values_to = "recovered") %>% 
+  group_by(Country.Region,Date) %>% 
+  summarise(recovered = sum(recovered))
+# convert date to data format
+time_series_recovered_long$Date <- mdy(time_series_recovered_long$Date)
+
+time_series_recovered_long %>% 
+  filter (Country.Region %in% c("US","Italy","Spain","Iran", "China", "Australia")) %>% 
+  ggplot(aes(x = Date,  y = recovered)) + 
+  geom_point() +
+  geom_line() +
+  ggtitle("Recovered COVID-19 Cases") +
+  facet_wrap(~Country.Region, ncol=2, scales="free_y")
+```
+
+
+
+* Graph 4
+
+Now we zoom into the United States. With leading numbers it has over 200,000 confirmed cases in total as of March 31st, 2020. This graph also demonstrates the amount of cases by state. New york leads, and is followed by Florida and California.
+```{r}
+#as of 3-31-2020
+daily_report <- read_csv(url("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/03-31-2020.csv")) %>% 
+  rename(Long = "Long_") %>% 
+  filter(Country_Region == "US") %>% 
+  group_by(Province_State) %>% 
+  summarize(Confirmed = sum(Confirmed)) %>% 
+  mutate(Province_State = tolower(Province_State))
+
+# load the US map data
+us <- map_data("state")
+# We need to join the us map data with our daily report to make one data frame/tibble
+state_join <- left_join(us, daily_report, by = c("region" = "Province_State"))
+
+# plot state map
+ggplot(data = us, mapping = aes(x = long, y = lat, group = group)) + 
+  coord_fixed(1.3) + 
+# Add data layer
+  geom_polygon(data = state_join, aes(fill = Confirmed), color = "white") +
+  geom_polygon(color = "white", fill = NA) +
+  scale_fill_gradientn(colours = 
+                        wes_palette("Royal1", 100, type = "continuous"),
+                        trans = "log10") +
+  labs(title = "Confirmed COVID-19 Cases in the US")
+```
+ 
+
+* Graph 5
+
+To get a diffirent view, we have this map of the United States. It shows the amount of confirmed cases of COVID-19 by county in every state. The east coast and places with large populations seem to have the biggest impact. This is to be expected, as coronavirus spreads easily. 
+```{r}
+daily_report <-   read_csv(url("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/03-31-2020.csv")) %>% 
+  rename(Long = "Long_") %>% 
+  filter(Country_Region == "US") %>% 
+  filter (!Province_State %in% c("Alaska","Hawaii", "American Samoa",
+                  "Puerto Rico","Northern Mariana Islands", 
+                  "Virgin Islands", "Recovered", "Guam", "Grand Princess",
+                  "District of Columbia", "Diamond Princess")) %>% 
+  filter(Lat > 0)
+
+ggplot(daily_report, aes(x = Long, y = Lat, size = Confirmed/1000)) +
+    borders("state", colour = "black", fill = "grey90") +
+    theme_bw() +
+    geom_point(shape = 21, color='orange', fill='orange', alpha = 0.5) +
+    labs(title = 'Confirmed COVID-19 Cases in the US', x = '', y = '',
+        size="Cases (x1000))") +
+    theme(legend.position = "right") +
+    coord_fixed(ratio=1.5)
+```
+
+
+* Graph 6
+
+We zoom in even further to the state of New York. Being the state in the US with the most cases, we can further break it down into its counties. The more populated areas like Nassau (light orange), Rockland (red), and Westchester (orange) located towards the bottom have the highest number of cases (3,000-8,000) as of March 31st, 2020.
+```{r}
+#as of 3-31 
+#confirmed in ny by county 
+daily_report <-   read_csv(url("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/03-31-2020.csv")) %>% 
+  rename(Long = "Long_") %>% 
+  filter(Province_State == "New York") %>% 
+  group_by(Admin2) %>% 
+  summarize(Confirmed = sum(Confirmed)) %>% 
+  mutate(Admin2 = tolower(Admin2))
+
+us <- map_data("state")
+ny_us <- subset(us, region == "new york")
+counties <- map_data("county")
+ny_county <- subset(counties, region == "new york")
+
+state_join <- left_join(ny_county, daily_report, by = c("subregion" = "Admin2")) 
+
+library(plotly)
+
+ggplotly(
+  ggplot(data = ny_county, mapping = aes(x = long, y = lat, group = group)) + 
+  coord_fixed(1.3) + 
+# Add data layer
+  geom_polygon(data = state_join, aes(fill = Confirmed), color = "black") +
+    scale_fill_gradientn(colours = 
+                         wes_palette("Royal1", 100, type = "continuous")) +
+  ggtitle("Confirmed COVID-19 Cases in New York") +
+# Cleaning up the graph
+  labs(x=NULL, y=NULL) +
+  theme(panel.border = element_blank()) +
+  theme(panel.background = element_blank()) +
+  theme(axis.ticks = element_blank()) +
+  theme(axis.text = element_blank())
+)
+```
+
+
+
+* Graph 7
+
+We can also look at the state of Florida. Although it has no where near the amount of confirmed cases as New york, it is still one the states with the highest numbers. One of its counties has over 2,000 cases of confirmed coronavirus.
+```{r}
+daily_report <-   read_csv(url("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/03-31-2020.csv")) %>% 
+  rename(Long = "Long_") %>% 
+  filter(Province_State == "Florida") %>% 
+  group_by(Admin2) %>% 
+  summarize(Confirmed = sum(Confirmed)) %>% 
+  mutate(Admin2 = tolower(Admin2))
+
+us <- map_data("state")
+fl_us <- subset(us, region == "florida")
+counties <- map_data("county")
+fl_county <- subset(counties, region == "florida")
+
+state_join <- left_join(fl_county, daily_report, by = c("subregion" = "Admin2")) 
+
+library(plotly)
+
+ggplotly(
+  ggplot(data = fl_county, mapping = aes(x = long, y = lat, group = group)) + 
+  coord_fixed(1.3) + 
+# Add data layer
+  geom_polygon(data = state_join, aes(fill = Confirmed), color = "black") +
+    scale_fill_gradientn(colours = 
+                         wes_palette("Royal1", 100, type = "continuous")) +
+  ggtitle("Confirmed COVID-19 Cases in Florida") +
+# Cleaning up the graph
+  labs(x=NULL, y=NULL) +
+  theme(panel.border = element_blank()) +
+  theme(panel.background = element_blank()) +
+  theme(axis.ticks = element_blank()) +
+  theme(axis.text = element_blank())
+)
+```
+
+
+## Discussion
+
+Due to the fast increasing rate in corfirmed/recovered cases of COVID-19, these numbers are changing day by day. This data also excludes cases that are not reported. Meaning there could be a lot more recovered and confirmed cases that we don't know about. This could be because they are asymptomatic, or simply don't have the correct resources around them. 
+
+
+
+```{r}
+
+```
+
