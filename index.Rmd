@@ -16,6 +16,8 @@ bibliography: data/references.bib
 
 [this is my lab9](lab9_sabrinamoreta.html)
 
+[this is my lab10](lab10_sabrinamoreta.html)
+
 [@RCoreTeam]
 
 [@Hopkins2020]
