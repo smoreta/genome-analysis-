@@ -18,10 +18,9 @@ bibliography: data/references.bib
 
 [@RCoreTeam]
 
-[@JohnHopkins]
+[@Hopkins2020]
 
 # REFERENCE
-
 
 
 
