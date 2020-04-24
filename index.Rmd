@@ -1,28 +1,39 @@
 ---
-title: "index"
+title: "INDEX"
 author: "Sabrina Moreta"
 date: "2/26/2020"
 output: html_document
 bibliography: data/references.bib
 ---
+# LABS 
 
-[this is my lab2](lab2_sabrinamoreta.html)
+[Lab2](lab2_sabrinamoreta.html)
 
-[this is my lab3](lab3_sabrinamoreta.html)
+[Lab3](lab3_sabrinamoreta.html)
 
-[this is my lab4](lab4_sabrinamoreta.html)
+[Lab4](lab4_sabrinamoreta.html)
 
-[this is my lab5](lab5_sabrinamoreta.html) 
+[Lab5](lab5_sabrinamoreta.html) 
 
-[this is my lab9](lab9_sabrinamoreta.html)
+[Lab9](lab9_sabrinamoreta.html)
 
-[this is my lab10](lab10_sabrinamoreta.html)
+[Lab10](lab10_sabrinamoreta.html) 
+
+
+# SHINY APP
+Lab11/12 
+
+[E1](https://smoreta.shinyapps.io/Lab12_E1_SM/)
+[E2](https://smoreta.shinyapps.io/Lab12_E2_SM/)
+[E3](https://smoreta.shinyapps.io/Lab12_E3_SM/)
+[E4](https://smoreta.shinyapps.io/Lab12_E4_SM/)
+
+
+# REFERENCES
 
 [@RCoreTeam]
 
 [@Hopkins2020]
-
-# REFERENCE
 
 
 
